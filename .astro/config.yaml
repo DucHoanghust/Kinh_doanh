@@ -1,0 +1,15 @@
+project:
+    name: kinh-doanh
+postgres:
+    host: postgres
+    password: postgres
+    port: "5434"
+    repository: docker.io/postgres
+    tag: "12.6"
+    user: postgres
+build:
+  dockerfile: Dockerfile
+webserver:
+    port: "8081"
+api-server:
+    port: "8081"
