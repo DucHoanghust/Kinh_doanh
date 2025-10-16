@@ -10,6 +10,8 @@ webserver_config.py
 airflow.cfg
 airflow.db
 .vscode
-instantclient-basic-linux.x64-19.8.0.0.0dbru.zip
+instantclient-basic-linux.x64-19.8.0.0.0dbru.zip/
 README.md
-instantclient_19_28
+instantclient_19_28/
+packages.txt
+instantclient-basic-linux*.zip
