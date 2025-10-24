@@ -1,8 +1,8 @@
-DROP SCHEMA IF EXISTS kd_stag CASCADE;
+DROP SCHEMA IF EXISTS xmcp_staging CASCADE;
 
-CREATE SCHEMA IF NOT EXISTS kd_stag;
+CREATE SCHEMA IF NOT EXISTS xmcp_staging;
 
-CREATE TABLE IF NOT EXISTS kd_stag.c_tax (
+CREATE TABLE IF NOT EXISTS xmcp_staging.c_tax (
     c_tax_id INT,
     c_taxcategory_id INT,
     name VARCHAR(255),
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS kd_stag.c_tax (
 
 
 
-CREATE TABLE IF NOT EXISTS kd_stag.c_submarket (
+CREATE TABLE IF NOT EXISTS xmcp_staging.c_submarket (
     c_submarket_id INT,
     c_market_id INT,
     name VARCHAR(255),
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS kd_stag.c_submarket (
     updated TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS kd_stag.c_market (
+CREATE TABLE IF NOT EXISTS xmcp_staging.c_market (
     c_market_id INT,
     name VARCHAR(255),
     value VARCHAR(255),
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS kd_stag.c_market (
 );
 
 
-CREATE TABLE IF NOT EXISTS kd_stag.m_product (
+CREATE TABLE IF NOT EXISTS xmcp_staging.m_product (
     m_product_id INT,
     c_uom_id INT,
     c_producttype_id INT,
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS kd_stag.m_product (
 );
 
 
-CREATE TABLE IF NOT EXISTS kd_stag.c_invoice (
+CREATE TABLE IF NOT EXISTS xmcp_staging.c_invoice (
     c_invoice_id INT,
     c_bpartner_id INT,
     m_product_id INT,
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS kd_stag.c_invoice (
     dateinvoice TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS kd_stag.c_currency (
+CREATE TABLE IF NOT EXISTS xmcp_staging.c_currency (
     c_currency_id INT,
     name VARCHAR(255),
     isactive INT,
@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS kd_stag.c_currency (
     updated TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS kd_stag.c_bpartner (
+CREATE TABLE IF NOT EXISTS xmcp_staging.c_bpartner (
     c_bpartner_id INT,
     name VARCHAR(255),
     value VARCHAR(255),
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS kd_stag.c_bpartner (
     updated TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS kd_stag.c_bp_group (
+CREATE TABLE IF NOT EXISTS xmcp_staging.c_bp_group (
     c_bp_group_id INT,
     name VARCHAR(255),
     value VARCHAR(255),
@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS kd_stag.c_bp_group (
     updated TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS kd_stag.ad_org (
+CREATE TABLE IF NOT EXISTS xmcp_staging.ad_org (
     ad_org_id INT,
     name VARCHAR(255),
     value VARCHAR(255),
@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS kd_stag.ad_org (
 );
 
 
-CREATE TABLE IF NOT EXISTS kd_stag.c_uom (
+CREATE TABLE IF NOT EXISTS xmcp_staging.c_uom (
     c_uom_id INT,
     name VARCHAR(255),
     value VARCHAR(255),
@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS kd_stag.c_uom (
 );
 
 
-CREATE TABLE IF NOT EXISTS kd_stag.c_producttype (
+CREATE TABLE IF NOT EXISTS xmcp_staging.c_producttype (
     c_producttype_id INT,
     name VARCHAR(255),
     value VARCHAR(255),
@@ -119,7 +119,7 @@ CREATE TABLE IF NOT EXISTS kd_stag.c_producttype (
     updated TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS kd_stag.c_invoiceline (
+CREATE TABLE IF NOT EXISTS xmcp_staging.c_invoiceline (
     c_invoiceline_id INT,
     c_invoice_id INT,
     c_submarket_id INT,
@@ -159,7 +159,7 @@ CREATE TABLE IF NOT EXISTS kd_stag.c_invoiceline (
     
 );
 
-CREATE TABLE IF NOT EXISTS kd_stag.c_doctype (
+CREATE TABLE IF NOT EXISTS xmcp_staging.c_doctype (
     c_doctype_id INT,
     name VARCHAR(255),
     printname VARCHAR(255),
@@ -171,7 +171,7 @@ CREATE TABLE IF NOT EXISTS kd_stag.c_doctype (
 );
 
 
-CREATE TABLE IF NOT EXISTS kd_stag.c_department (
+CREATE TABLE IF NOT EXISTS xmcp_staging.c_department (
     c_department_id INT,
     ad_org_id INT,
     name VARCHAR(255),
@@ -182,7 +182,7 @@ CREATE TABLE IF NOT EXISTS kd_stag.c_department (
 );
 
 
-CREATE TABLE IF NOT EXISTS kd_stag.hr_employee (
+CREATE TABLE IF NOT EXISTS xmcp_staging.hr_employee (
     hr_employee_id INT,
     c_department_id INT,
     name VARCHAR(255),
@@ -194,3 +194,105 @@ CREATE TABLE IF NOT EXISTS kd_stag.hr_employee (
     created TIMESTAMP,
     updated TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS xmcp_staging.m_locator (
+    m_locator_id INT,
+    name VARCHAR(255),
+    value VARCHAR(255),
+    isactive VARCHAR(2),
+    created TIMESTAMP,
+    updated TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS xmcp_staging.m_warehouse (
+    m_warehouse_id INT,
+    name VARCHAR(255),
+    value VARCHAR(255),
+    isstocked VARCHAR(2), --Không tính tồn kho hàng hỏng 
+    isactive VARCHAR(2),
+    created TIMESTAMP,
+    updated TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS xmcp_staging.m_product_category (
+    m_product_category_id INT,
+    name VARCHAR(255),
+    value VARCHAR(255),
+    isactive VARCHAR(2),
+    created TIMESTAMP,
+    updated TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS xmcp_staging.m_inout (
+    m_inout_id INT,
+    c_department_create_id INT, -- Phòng ban YC
+    m_warehouse_id INT, -- Kho
+    c_submarket_id INT,
+    
+    documentno VARCHAR(255),
+    currencyrate NUMERIC(20,10), -- tỷ giá
+    
+    
+        
+    docstatus VARCHAR(10), -- Trạng thái CO: Hoàn thành, DR: Đang nháp
+    register_status VARCHAR(10), -- Trạng thái ký: K: Đã ký, N: Chưa trình ký, H: Hủy, TK: Đang trình kí
+    isprinted VARCHAR(2),
+    isactive VARCHAR(2),  
+    created TIMESTAMP,
+    updated TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS xmcp_staging.m_inoutline (
+    m_inoutline_id INT,
+    m_inout_id INT,
+    
+    m_locator_id INT,
+    m_product_id INT,
+    c_uom_id INT,
+    m_step_id INT,
+    
+    qtyrequiered NUMERIC(10,2),  
+    qty NUMERIC(10,2),  
+    
+    qtyentered NUMERIC(10,2), 
+    movementqty NUMERIC(10,2), 
+    
+    rateconverted NUMERIC(20,10), 
+    
+    priceentered NUMERIC(20,10), 
+    pricecost NUMERIC(20,10), 
+    
+    amountconvert NUMERIC(20,10), 
+    linenetamount NUMERIC(20,10), 
+    
+    totaltaxamount NUMERIC(20,10), 
+    taxamountconvert NUMERIC(20,10), 
+    
+    totallines NUMERIC(20,10), 
+    totallinesconvert NUMERIC(20,10), 
+    
+    amountallocation NUMERIC(20,10), 
+    distributionamount NUMERIC(20,10), 
+    
+    
+    receiptdate TIMESTAMP,
+    lifetime INT,
+    dateexpiration TIMESTAMP,
+    classification VARCHAR(255),
+    timeused INT,
+    timestock INT,
+    
+    
+    
+    updated TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS xmcp_staging.m_step (
+    m_step_id INT,
+    name VARCHAR(255),
+    value VARCHAR(255),
+    isactive VARCHAR(2),
+    created TIMESTAMP,
+    updated TIMESTAMP
+);
+

@@ -18,7 +18,7 @@ def extract_c_market():
     staging_operator.save_data_to_postgres(
         df,
         table_name="c_market",
-        schema="kd_stag",
+        schema="xmcp_staging",
         if_exists="replace"
     
     )

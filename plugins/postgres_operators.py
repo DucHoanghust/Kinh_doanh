@@ -21,8 +21,7 @@ class PostgresOperators:
         uri = self.get_hook().get_uri()
         engine = create_engine(uri)
         df.to_sql(table_name, engine, schema=schema, if_exists=if_exists, index=False)
-        # logging.info(f"[DEBUG] Saving to Postgres with URI: {uri}")
-        # logging.info(f"[DEBUG] Engine type: {type(engine)}")
+
 
     def execute_query(self, sql):
         self.get_hook().run(sql)

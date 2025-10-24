@@ -1,4 +1,6 @@
 FROM astrocrpublic.azurecr.io/runtime:3.0-8
+# FROM --platform=linux/amd64 quay.io/astronomer/astro-runtime:8.6.0
+
 
 # COPY instantclient_19_28 /opt/oracle/instantclient_19_28
 # ENV LD_LIBRARY_PATH=/opt/oracle/instantclient_19_28:${LD_LIBRARY_PATH}

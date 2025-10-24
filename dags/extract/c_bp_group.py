@@ -19,7 +19,7 @@ def extract_c_bp_group():
     staging_operator.save_data_to_postgres(
         df,
         table_name="c_bp_group",
-        schema="kd_stag",
+        schema="xmcp_staging",
         if_exists="replace"
     
     )

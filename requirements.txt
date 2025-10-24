@@ -7,3 +7,5 @@ pandas
 pyarrow 
 apache-airflow-providers-oracle
 SQLAlchemy
+airflow-provider-duckdb
+# apache-airflow-providers-duckdb

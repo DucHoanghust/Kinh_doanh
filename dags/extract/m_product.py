@@ -18,7 +18,7 @@ def extract_m_product():
     staging_operator.save_data_to_postgres(
         df,
         table_name="m_product",
-        schema="kd_stag",
+        schema="xmcp_staging",
         if_exists="replace"
     
     )

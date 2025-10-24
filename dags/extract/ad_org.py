@@ -18,7 +18,7 @@ def extract_ad_org():
     staging_operator.save_data_to_postgres(
         df,
         table_name="ad_org",
-        schema="kd_stag",
+        schema="xmcp_staging",
         if_exists="replace"
     
     )

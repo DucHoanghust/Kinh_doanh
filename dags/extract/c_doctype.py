@@ -19,7 +19,7 @@ def extract_c_doctype():
     staging_operator.save_data_to_postgres(
         df,
         table_name="c_doctype",
-        schema="kd_stag",
+        schema="xmcp_staging",
         if_exists="replace"
     
     )

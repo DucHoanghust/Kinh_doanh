@@ -32,7 +32,7 @@ def extract_hr_employee():
     staging_operator.save_data_to_postgres(
         df,
         table_name="hr_employee",
-        schema="kd_stag",
+        schema="xmcp_staging",
         if_exists="replace"
     
     )

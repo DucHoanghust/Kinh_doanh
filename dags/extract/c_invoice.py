@@ -32,7 +32,7 @@ def extract_c_invoice():
     staging_operator.save_data_to_postgres(
         df,
         table_name="c_invoice",
-        schema="kd_stag",
+        schema="xmcp_staging",
         if_exists="replace"
     
     )

@@ -60,7 +60,7 @@ def extract_c_invoiceline():
     staging_operator.save_data_to_postgres(
         df,
         table_name="c_invoiceline",
-        schema="kd_stag",
+        schema="xmcp_staging",
         if_exists="replace"
     
     )

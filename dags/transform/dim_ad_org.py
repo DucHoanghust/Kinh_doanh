@@ -9,7 +9,6 @@ def load_ad_org_full():
     staging_operator = PostgresOperators(conn_id="STAGING_POSTGRES")
     dw_operator = PostgresOperators(conn_id="DW_POSTGRES")
 
-    
 
     df = staging_operator.get_data_to_pd("SELECT * FROM kd_stag.ad_org")
     logging.info(df.columns)
