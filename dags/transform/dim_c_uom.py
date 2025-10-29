@@ -11,7 +11,7 @@ def load_c_uom_full():
 
     
 
-    df = staging_operator.get_data_to_pd("SELECT * FROM kd_stag.c_uom")
+    df = staging_operator.get_data_to_pd("SELECT * FROM xmcp_staging.c_uom")
     logging.info(df.columns)
     # Chuẩn hóa lại is active sang boolean từ Y/N sang 1/0
     df['isactive'] = df['isactive'].map({'Y': 1, 'N': 0})
@@ -28,7 +28,7 @@ def load_c_uom_full():
     dw_operator.save_data_to_postgres(
         df,
         table_name="dim_c_uom",
-        schema="kd_dw",
+        schema="xmcp_dw",
         if_exists="append"
     
     )
@@ -38,10 +38,10 @@ def load_c_uom_incremental():
     dw_operator = PostgresOperators(conn_id="DW_POSTGRES")
 
     sql="""
-        UPDATE kd_dw.dim_c_uom dw
+        UPDATE xmcp_dw.dim_c_uom dw
         SET valid_to=NOW(),
             is_current=0
-        FROM kd_stag.c_uom stg
+        FROM xmcp_staging.c_uom stg
         WHERE stg.c_uom_id = dw.c_uom_id
             AND dw.is_current = 1
             AND (dw.name        IS DISTINCT FROM stg.name
@@ -51,7 +51,7 @@ def load_c_uom_incremental():
             );
 
         
-        INSERT INTO kd_dw.dim_c_tax (
+        INSERT INTO xmcp_dw.dim_c_tax (
             c_uom_id,
             name,
             value,
@@ -74,8 +74,8 @@ def load_c_uom_incremental():
                 NOW(),
                 '9999-12-31 23:59:59',
                 1
-        FROM kd_stag.c_uom stg
-        LEFT JOIN kd_dw.dim_c_uom dw
+        FROM xmcp_staging.c_uom stg
+        LEFT JOIN xmcp_dw.dim_c_uom dw
             ON stg.c_uom_id = dw.c_uom_id
             AND dw.is_current = 1
         WHERE dw.c_uom_id IS NULL
@@ -90,7 +90,7 @@ def load_c_uom_incremental():
     # staging_operator.save_data_to_postgres(
     #     df,
     #     table_name="c_tax",
-    #     schema="kd_dw",
+    #     schema="xmcp_dw",
     #     if_exists="append"
     # )
     dw_operator.run_sql(sql)

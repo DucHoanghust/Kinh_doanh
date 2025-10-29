@@ -20,7 +20,7 @@ def load_c_doctype_full():
         issotrx, 
         isactive,
         created, 
-        updated FROM kd_stag.c_doctype
+        updated FROM xmcp_staging.c_doctype
     """
 
     df = staging_operator.get_data_to_pd(sql)
@@ -43,7 +43,7 @@ def load_c_doctype_full():
     dw_operator.save_data_to_postgres(
         df,
         table_name="dim_c_doctype",
-        schema="kd_dw",
+        schema="xmcp_dw",
         if_exists="append"
     
     )
@@ -53,10 +53,10 @@ def load_c_doctype_incremental():
     dw_operator = PostgresOperators(conn_id="DW_POSTGRES")
 
     sql="""
-        UPDATE kd_dw.dim_c_doctype dw
+        UPDATE xmcp_dw.dim_c_doctype dw
         SET valid_to=NOW(),
             is_current=0
-        FROM kd_stag.c_doctype stg
+        FROM xmcp_staging.c_doctype stg
         WHERE stg.c_doctype_id = dw.c_doctype_id
             AND dw.is_current = 1
             AND (
@@ -67,7 +67,7 @@ def load_c_doctype_incremental():
                 OR dw.isactive IS DISTINCT FROM (CASE stg.isactive WHEN 'Y' THEN 1 ELSE 0 END));
 
         
-        INSERT INTO kd_dw.dim_c_doctype (
+        INSERT INTO xmcp_dw.dim_c_doctype (
             c_doctype_id,
             name,
             printname,
@@ -92,8 +92,8 @@ def load_c_doctype_incremental():
                 NOW(),
                 '9999-12-31 23:59:59',
                 1
-        FROM kd_stag.c_doctype stg
-        LEFT JOIN kd_dw.dim_c_doctype dw
+        FROM xmcp_staging.c_doctype stg
+        LEFT JOIN xmcp_dw.dim_c_doctype dw
             ON stg.c_doctype_id = dw.c_doctype_id
             AND dw.is_current = 1
         WHERE dw.c_doctype_id IS NULL
@@ -110,7 +110,7 @@ def load_c_doctype_incremental():
     # staging_operator.save_data_to_postgres(
     #     df,
     #     table_name="c_tax",
-    #     schema="kd_dw",
+    #     schema="xmcp_dw",
     #     if_exists="append"
     # )
     dw_operator.run_sql(sql)

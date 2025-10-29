@@ -162,7 +162,7 @@ with DAG("KD_FULL_LOAD",
         create_table_dim = SQLExecuteQueryOperator(
             task_id="create_dimension_tables",
             conn_id="STAGING_POSTGRES",
-            sql="./CREATE_DIM.sql"
+            sql="./CREATE_DIM_XMCP.sql"
         )
 
     

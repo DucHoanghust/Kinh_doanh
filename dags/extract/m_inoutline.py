@@ -3,6 +3,8 @@ from plugins.postgres_operators import PostgresOperators
 
 # M_INOUTLINE: Chi tiết phiếu nhập xuất
 
+# movementtype -> Phân loại thành Xuất/Nhập
+
 def extract_m_inoutline():
     source_operator = OracleHookThick(conn_id="SOURCE_ORACLE")
     staging_operator = PostgresOperators(conn_id="STAGING_POSTGRES")
@@ -16,7 +18,9 @@ def extract_m_inoutline():
         m_product_id,
         c_uom_id,
         m_step_id,
-        
+
+        movementtype, 
+
         qtyrequiered,
         qty,
         

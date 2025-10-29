@@ -24,11 +24,11 @@ def load_c_invoice_full():
                 COALESCE(iv.dateinvoice, iv.created) as dateinvoice
                 
                 
-        FROM kd_stag.c_invoice iv 
-        LEFT JOIN kd_dw.dim_c_doctype cd on iv.c_doctype_id = cd.c_doctype_id
-        LEFT JOIN kd_dw.dim_c_bpartner cb on iv.c_bpartner_id = cb.c_bpartner_id
-        LEFT JOIN kd_dw.dim_ad_org ad on iv.ad_org_id = ad.ad_org_id
-        LEFT JOIN kd_dw.dim_c_currency cur on iv.c_currency_id = cur.c_currency_id
+        FROM xmcp_staging.c_invoice iv 
+        LEFT JOIN xmcp_dw.dim_c_doctype cd on iv.c_doctype_id = cd.c_doctype_id
+        LEFT JOIN xmcp_dw.dim_c_bpartner cb on iv.c_bpartner_id = cb.c_bpartner_id
+        LEFT JOIN xmcp_dw.dim_ad_org ad on iv.ad_org_id = ad.ad_org_id
+        LEFT JOIN xmcp_dw.dim_c_currency cur on iv.c_currency_id = cur.c_currency_id
     """
 
     df = staging_operator.get_data_to_pd(sql)
@@ -47,7 +47,7 @@ def load_c_invoice_full():
     dw_operator.save_data_to_postgres(
         df,
         table_name="dim_c_invoice",
-        schema="kd_dw",
+        schema="xmcp_dw",
         if_exists="append"
     
     )
@@ -57,10 +57,10 @@ def load_c_invoice_incremental():
     dw_operator = PostgresOperators(conn_id="DW_POSTGRES")
 
     sql="""
-        UPDATE kd_dw.dim_c_invoice dw
+        UPDATE xmcp_dw.dim_c_invoice dw
         SET valid_to=NOW(),
             is_current=0
-        FROM kd_stag.c_invoice stg
+        FROM xmcp_staging.c_invoice stg
         WHERE stg.c_invoice_id = dw.c_invoice_id
             AND dw.is_current = 1
             AND (
@@ -74,7 +74,7 @@ def load_c_invoice_incremental():
             );
 
         
-        INSERT INTO kd_dw.dim_c_invoice (
+        INSERT INTO xmcp_dw.dim_c_invoice (
             c_invoice_id,
             c_bpartner_id,
             m_product_id,
@@ -103,8 +103,8 @@ def load_c_invoice_incremental():
                 NOW(),
                 '9999-12-31 23:59:59',
                 1
-        FROM kd_stag.c_invoice stg
-        LEFT JOIN kd_dw.dim_c_invoice dw
+        FROM xmcp_staging.c_invoice stg
+        LEFT JOIN xmcp_dw.dim_c_invoice dw
             ON stg.c_invoice_id = dw.c_invoice_id
             AND dw.is_current = 1
         WHERE dw.c_invoice_id IS NULL
@@ -122,7 +122,7 @@ def load_c_invoice_incremental():
     # staging_operator.save_data_to_postgres(
     #     df,
     #     table_name="c_tax",
-    #     schema="kd_dw",
+    #     schema="xmcp_dw",
     #     if_exists="append"
     # )
     dw_operator.run_sql(sql)

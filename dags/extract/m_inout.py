@@ -11,6 +11,7 @@ def extract_m_inout():
         register_status, -- Trạng thái ký: K: Đã ký, N: Chưa trình ký, H: Hủy, TK: Đang trình kí
         isprinted,
         isactive,
+        isinvoiced -- là hóa đơn hay không
     """
     sql="""
     select
@@ -27,6 +28,7 @@ def extract_m_inout():
         
         docstatus, -- Trạng thái CO: Hoàn thành, DR: Đang nháp
         register_status, -- Trạng thái ký: K: Đã ký, N: Chưa trình ký, H: Hủy, TK: Đang trình kí
+        isinvoiced,
         isprinted,
         isactive,  
         created,

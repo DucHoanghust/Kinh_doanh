@@ -8,7 +8,7 @@ def load_c_submarket_full():
     
     staging_operator = PostgresOperators(conn_id="STAGING_POSTGRES")
     dw_operator = PostgresOperators(conn_id="DW_POSTGRES")
-    # INSERT INTO kd_dw.dim_c_submarket (
+    # INSERT INTO xmcp_dw.dim_c_submarket (
     #         c_submarket_id,
     #         c_market_sk,
     #         name,
@@ -27,8 +27,8 @@ def load_c_submarket_full():
             sm.isactive as isactive,
             sm.created,
             sm.updated
-        FROM kd_stag.c_submarket sm
-        LEFT JOIN kd_dw.dim_c_market m
+        FROM xmcp_staging.c_submarket sm
+        LEFT JOIN xmcp_dw.dim_c_market m
             ON sm.c_market_id = m.c_market_id;
     """
 
@@ -49,7 +49,7 @@ def load_c_submarket_full():
     dw_operator.save_data_to_postgres(
         df,
         table_name="dim_c_submarket",
-        schema="kd_dw",
+        schema="xmcp_dw",
         if_exists="append"
     
     )
@@ -59,10 +59,10 @@ def load_c_submarket_incremental():
     dw_operator = PostgresOperators(conn_id="DW_POSTGRES")
 
     sql="""
-        UPDATE kd_dw.dim_c_submarket dw
+        UPDATE xmcp_dw.dim_c_submarket dw
         SET valid_to=NOW(),
             is_current=0
-        FROM kd_stag.c_submarket stg
+        FROM xmcp_staging.c_submarket stg
         WHERE stg.c_submarket_id = dw.c_submarket_id
             AND dw.is_current = 1
             AND (                 
@@ -71,7 +71,7 @@ def load_c_submarket_incremental():
                 OR dw.value       IS DISTINCT FROM stg.value
                 );
 
-        INSERT INTO kd_dw.dim_c_submarket (
+        INSERT INTO xmcp_dw.dim_c_submarket (
             c_submarket_id,
             c_market_id,
             name,
@@ -92,8 +92,8 @@ def load_c_submarket_incremental():
                 NOW(),
                 '9999-12-31 23:59:59',
                 1
-        FROM kd_stag.c_submarket stg
-        LEFT JOIN kd_dw.dim_c_submarket dw
+        FROM xmcp_staging.c_submarket stg
+        LEFT JOIN xmcp_dw.dim_c_submarket dw
             ON stg.c_submarket_id = dw.c_submarket_id
             AND dw.is_current = 1
         WHERE dw.c_submarket_id IS NULL
@@ -107,7 +107,7 @@ def load_c_submarket_incremental():
     # staging_operator.save_data_to_postgres(
     #     df,
     #     table_name="c_tax",
-    #     schema="kd_dw",
+    #     schema="xmcp_dw",
     #     if_exists="append"
     # )
     dw_operator.run_sql(sql)

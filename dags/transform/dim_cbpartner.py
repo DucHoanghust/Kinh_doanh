@@ -9,7 +9,7 @@ def load_c_bpartner_full():
     staging_operator = PostgresOperators(conn_id="STAGING_POSTGRES")
     dw_operator = PostgresOperators(conn_id="DW_POSTGRES")
 
-    # INSERT INTO kd_dw.dim_c_bpartner (
+    # INSERT INTO xmcp_dw.dim_c_bpartner (
     #         c_bpartner_id,
     #         c_bp_group_sk,
     #         name,
@@ -19,7 +19,7 @@ def load_c_bpartner_full():
     #         updated
     #     )
 
-    # "SELECT * FROM kd_stag.c_bpartner"
+    # "SELECT * FROM xmcp_staging.c_bpartner"
     sql="""
         
         SELECT 
@@ -30,8 +30,8 @@ def load_c_bpartner_full():
             sm.isactive,
             sm.created,
             sm.updated
-        FROM kd_stag.c_bpartner sm
-        LEFT JOIN kd_dw.dim_c_bp_group m
+        FROM xmcp_staging.c_bpartner sm
+        LEFT JOIN xmcp_dw.dim_c_bp_group m
             ON sm.c_bp_group_id = m.c_bp_group_id;
     """
     df = staging_operator.get_data_to_pd(sql)
@@ -50,7 +50,7 @@ def load_c_bpartner_full():
     dw_operator.save_data_to_postgres(
         df,
         table_name="dim_c_bpartner",
-        schema="kd_dw",
+        schema="xmcp_dw",
         if_exists="append"
     
     )
@@ -60,10 +60,10 @@ def load_c_bpartner_incremental():
     dw_operator = PostgresOperators(conn_id="DW_POSTGRES")
 
     sql="""
-        UPDATE kd_dw.dim_c_bpartner dw
+        UPDATE xmcp_dw.dim_c_bpartner dw
         SET valid_to=NOW(),
             is_current=0
-        FROM kd_stag.c_bpartner stg
+        FROM xmcp_staging.c_bpartner stg
         WHERE stg.c_bpartner_id = dw.c_bpartner_id
             AND dw.is_current = 1
             AND (    
@@ -73,7 +73,7 @@ def load_c_bpartner_incremental():
                 OR dw.isactive IS DISTINCT FROM (CASE stg.isactive WHEN 'Y' THEN 1 ELSE 0 END)
                 );
 
-        INSERT INTO kd_dw.dim_c_bpartner (
+        INSERT INTO xmcp_dw.dim_c_bpartner (
             c_bpartner_id,
             c_bp_group_id,
             name,
@@ -96,8 +96,8 @@ def load_c_bpartner_incremental():
                 NOW(),
                 '9999-12-31 23:59:59',
                 1
-        FROM kd_stag.c_bpartner stg
-        LEFT JOIN kd_dw.dim_c_bpartner dw
+        FROM xmcp_staging.c_bpartner stg
+        LEFT JOIN xmcp_dw.dim_c_bpartner dw
             ON stg.c_bpartner_id = dw.c_bpartner_id
             AND dw.is_current = 1
         WHERE dw.c_bpartner_id IS NULL
@@ -112,7 +112,7 @@ def load_c_bpartner_incremental():
     # staging_operator.save_data_to_postgres(
     #     df,
     #     table_name="c_tax",
-    #     schema="kd_dw",
+    #     schema="xmcp_dw",
     #     if_exists="append"
     # )
     dw_operator.run_sql(sql)

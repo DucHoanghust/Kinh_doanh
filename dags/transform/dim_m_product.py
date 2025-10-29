@@ -21,9 +21,9 @@ def load_m_product_full():
                                             m.isactive,
                                             m.created, 
                                             m.updated 
-                                            FROM kd_stag.m_product m
-                                            LEFT JOIN kd_dw.dim_c_producttype c on m.c_producttype_id=c.c_producttype_id  AND c.is_current = 1
-                                            LEFT JOIN kd_dw.dim_c_uom u on m.c_uom_id=u.c_uom_id  AND u.is_current = 1
+                                            FROM xmcp_staging.m_product m
+                                            LEFT JOIN xmcp_dw.dim_c_producttype c on m.c_producttype_id=c.c_producttype_id  AND c.is_current = 1
+                                            LEFT JOIN xmcp_dw.dim_c_uom u on m.c_uom_id=u.c_uom_id  AND u.is_current = 1
                                          """)
     
 
@@ -44,7 +44,7 @@ def load_m_product_full():
     dw_operator.save_data_to_postgres(
         df,
         table_name="dim_m_product",
-        schema="kd_dw",
+        schema="xmcp_dw",
         if_exists="append"
     
     )
@@ -54,10 +54,10 @@ def load_m_product_incremental():
     dw_operator = PostgresOperators(conn_id="DW_POSTGRES")
 
     sql="""
-        UPDATE kd_dw.dim_m_product dw
+        UPDATE xmcp_dw.dim_m_product dw
         SET valid_to=NOW(),
             is_current=0
-        FROM kd_stag.m_product stg
+        FROM xmcp_staging.m_product stg
         WHERE stg.m_product_id = dw.m_product_id
             AND dw.is_current = 1
             AND (dw.c_uom_id IS DISTINCT FROM stg.c_uom_id
@@ -67,7 +67,7 @@ def load_m_product_incremental():
                 OR dw.isactive IS DISTINCT FROM (CASE stg.isactive WHEN 'Y' THEN 1 ELSE 0 END));
 
         
-        INSERT INTO kd_dw.dim_m_product (
+        INSERT INTO xmcp_dw.dim_m_product (
             m_product_id,
             c_uom_id,
             c_producttype_id,
@@ -92,8 +92,8 @@ def load_m_product_incremental():
                 NOW(),
                 '9999-12-31 23:59:59',
                 1
-        FROM kd_stag.m_product stg
-        LEFT JOIN kd_dw.dim_m_product dw
+        FROM xmcp_staging.m_product stg
+        LEFT JOIN xmcp_dw.dim_m_product dw
             ON stg.m_product_id = dw.m_product_id
             AND dw.is_current = 1
         WHERE dw.m_product_id IS NULL
@@ -109,7 +109,7 @@ def load_m_product_incremental():
     # staging_operator.save_data_to_postgres(
     #     df,
     #     table_name="c_tax",
-    #     schema="kd_dw",
+    #     schema="xmcp_dw",
     #     if_exists="append"
     # )
     dw_operator.run_sql(sql)

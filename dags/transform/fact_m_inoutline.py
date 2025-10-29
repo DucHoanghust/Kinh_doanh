@@ -4,24 +4,24 @@ from plugins.postgres_operators import PostgresOperators
 import pandas as pd
 import logging
 
-def load_c_invoiceline_full():
+def load_m_inoutline_full():
     
     staging_operator = PostgresOperators(conn_id="STAGING_POSTGRES")
     dw_operator = PostgresOperators(conn_id="DW_POSTGRES")
     # Sửa lại load sql
     
 
-    df = staging_operator.get_data_to_pd("""SELECT * FROM xmcp_staging.c_invoiceline""")
+    df = staging_operator.get_data_to_pd("""SELECT * FROM xmcp_staging.m_inoutline""")
     logging.info(df.columns)
-    logging.info("🔄 Start full load fact_c_invoiceline")
+    logging.info("🔄 Start full load fact_m_inoutline")
     
     # Các trường thừa đã bỏ
     # qtyentered,
     # movementqty,
 
     sql="""
-        INSERT INTO xmcp_dw.fact_c_invoiceline (
-            c_invoiceline_id,
+        INSERT INTO xmcp_dw.fact_m_inoutline (
+            m_inoutline_id,
             c_invoice_sk,
             c_submarket_sk,
             m_product_sk,
@@ -31,7 +31,8 @@ def load_c_invoiceline_full():
             date_sk,
             c_bpartner_sk,
 
-
+            movementtype,
+            
             qtyinvoiced,
             priceactual,
             
@@ -54,7 +55,7 @@ def load_c_invoiceline_full():
 
         )
         SELECT 
-            ci.c_invoiceline_id,
+            ci.m_inoutline_id,
 
             COALESCE(inv.c_invoice_sk, -1),
             COALESCE(m.c_submarket_sk, -1),
@@ -89,7 +90,7 @@ def load_c_invoiceline_full():
             ci.grandtotal,
             ci.grandtotalconvert
 
-        FROM xmcp_staging.c_invoiceline ci
+        FROM xmcp_staging.m_inoutline ci
         LEFT JOIN xmcp_dw.dim_c_invoice inv ON ci.c_invoice_id = inv.c_invoice_id
 
         LEFT JOIN xmcp_dw.dim_c_submarket m ON ci.c_submarket_id = m.c_submarket_id
@@ -103,29 +104,4 @@ def load_c_invoiceline_full():
         LEFT JOIN xmcp_dw.dim_c_bpartner bg ON ci.c_bpartner_id = bg.c_bpartner_id;
     """
 
-    dw_operator.run_sql(sql)
-
-    # dw_operator.save_data_to_postgres(
-    #     df,
-    #     table_name="dim_c_tax",
-    #     schema="xmcp_dw",
-    #     if_exists="replace"
-    # )
-
-def load_c_invoiceline_incremental():
-    # staging_operator = PostgresOperators(conn_id="STAGING_POSTGRES")
-    dw_operator = PostgresOperators(conn_id="DW_POSTGRES")
-
-    sql="""
-        
-    """
-
-    
-
-    # staging_operator.save_data_to_postgres(
-    #     df,
-    #     table_name="c_tax",
-    #     schema="xmcp_dw",
-    #     if_exists="append"
-    # )
     dw_operator.run_sql(sql)

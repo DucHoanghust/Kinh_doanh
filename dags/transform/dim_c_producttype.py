@@ -11,7 +11,7 @@ def load_c_producttype_full():
 
     
 
-    df = staging_operator.get_data_to_pd("SELECT * FROM kd_stag.c_producttype")
+    df = staging_operator.get_data_to_pd("SELECT * FROM xmcp_staging.c_producttype")
     logging.info(df.columns)
     # Chuẩn hóa lại is active sang boolean từ Y/N sang 1/0
     df['isactive'] = df['isactive'].map({'Y': 1, 'N': 0})
@@ -28,7 +28,7 @@ def load_c_producttype_full():
     dw_operator.save_data_to_postgres(
         df,
         table_name="dim_c_producttype",
-        schema="kd_dw",
+        schema="xmcp_dw",
         if_exists="append"
     
     )
@@ -38,10 +38,10 @@ def load_c_producttype_incremental():
     dw_operator = PostgresOperators(conn_id="DW_POSTGRES")
 
     sql="""
-        UPDATE kd_dw.dim_c_producttype dw
+        UPDATE xmcp_dw.dim_c_producttype dw
         SET valid_to=NOW(),
             is_current=0
-        FROM kd_stag.c_producttype stg
+        FROM xmcp_staging.c_producttype stg
         WHERE stg.c_producttype_id = dw.c_producttype_id
             AND dw.is_current = 1
             AND (
@@ -50,7 +50,7 @@ def load_c_producttype_incremental():
                 OR dw.isactive IS DISTINCT FROM (CASE stg.isactive WHEN 'Y' THEN 1 ELSE 0 END));
 
 
-        INSERT INTO kd_dw.dim_c_producttype (
+        INSERT INTO xmcp_dw.dim_c_producttype (
             c_producttype_id,
             name,
             value,
@@ -71,8 +71,8 @@ def load_c_producttype_incremental():
                 NOW(),
                 '9999-12-31 23:59:59',
                 1
-        FROM kd_stag.c_producttype stg
-        LEFT JOIN kd_dw.dim_c_producttype dw
+        FROM xmcp_staging.c_producttype stg
+        LEFT JOIN xmcp_dw.dim_c_producttype dw
             ON stg.c_producttype_id = dw.c_producttype_id
             AND dw.is_current = 1
         WHERE dw.c_producttype_id IS NULL
@@ -86,7 +86,7 @@ def load_c_producttype_incremental():
     # staging_operator.save_data_to_postgres(
     #     df,
     #     table_name="c_tax",
-    #     schema="kd_dw",
+    #     schema="xmcp_dw",
     #     if_exists="append"
     # )
     dw_operator.run_sql(sql)

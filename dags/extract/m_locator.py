@@ -16,7 +16,7 @@ def extract_m_locator():
         isactive,
         created,
         updated
-    from m_locator;
+    from m_locator
 """    
 
     df = source_operator.get_data_to_pandas(sql)

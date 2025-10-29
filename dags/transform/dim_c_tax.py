@@ -11,7 +11,7 @@ def load_c_tax_full():
 
     
 
-    df = staging_operator.get_data_to_pd("SELECT * FROM kd_stag.c_tax")
+    df = staging_operator.get_data_to_pd("SELECT * FROM xmcp_staging.c_tax")
     logging.info(df.columns)
     # Chuẩn hóa lại is active sang boolean từ Y/N sang 1/0
     df['isactive'] = df['isactive'].map({'Y': 1, 'N': 0})
@@ -28,7 +28,7 @@ def load_c_tax_full():
     dw_operator.save_data_to_postgres(
         df,
         table_name="dim_c_tax",
-        schema="kd_dw",
+        schema="xmcp_dw",
         if_exists="append"
     
     )
@@ -38,10 +38,10 @@ def load_c_tax_incremental():
     dw_operator = PostgresOperators(conn_id="DW_POSTGRES")
 
     sql="""
-        UPDATE kd_dw.dim_c_tax dw
+        UPDATE xmcp_dw.dim_c_tax dw
         SET valid_to=NOW(),
             is_current=0
-        FROM kd_stag.c_tax stg
+        FROM xmcp_staging.c_tax stg
         WHERE stg.c_tax_id = dw.c_tax_id
             AND dw.is_current = 1
             AND (dw.name        IS DISTINCT FROM stg.name
@@ -51,7 +51,7 @@ def load_c_tax_incremental():
                 OR dw.c_taxcategory_id IS DISTINCT FROM stg.c_taxcategory_id);
 
         
-        INSERT INTO kd_dw.dim_c_tax (
+        INSERT INTO xmcp_dw.dim_c_tax (
             c_tax_id,
             c_taxcategory_id,
             name,
@@ -76,8 +76,8 @@ def load_c_tax_incremental():
                 NOW(),
                 '9999-12-31 23:59:59',
                 1
-        FROM kd_stag.c_tax stg
-        LEFT JOIN kd_dw.dim_c_tax dw
+        FROM xmcp_staging.c_tax stg
+        LEFT JOIN xmcp_dw.dim_c_tax dw
             ON stg.c_tax_id = dw.c_tax_id
             AND dw.is_current = 1
         WHERE dw.c_tax_id IS NULL
@@ -93,7 +93,7 @@ def load_c_tax_incremental():
     # staging_operator.save_data_to_postgres(
     #     df,
     #     table_name="c_tax",
-    #     schema="kd_dw",
+    #     schema="xmcp_dw",
     #     if_exists="append"
     # )
     dw_operator.run_sql(sql)

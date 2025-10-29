@@ -1,5 +1,5 @@
 -- VW: vw_c_invoice_full
-CREATE OR REPLACE VIEW kd_dw.vw_c_invoice_full AS
+CREATE OR REPLACE VIEW xmcp_dw.vw_c_invoice_full AS
 SELECT
     
 
@@ -21,15 +21,15 @@ SELECT
     
     
     
-FROM kd_dw.dim_c_invoice i
-LEFT JOIN kd_dw.dim_c_bpartner p on p.c_bpartner_sk=i.c_bpartner_sk
-LEFT JOIN kd_dw.dim_c_bp_group pg on pg.c_bp_group_sk = p.c_bp_group_sk
-LEFT JOIN kd_dw.dim_c_doctype dt on dt.c_doctype_sk = i.c_doctype_sk
-LEFT JOIN kd_dw.dim_c_currency c on c.c_currency_sk=i.c_currency_sk;
+FROM xmcp_dw.dim_c_invoice i
+LEFT JOIN xmcp_dw.dim_c_bpartner p on p.c_bpartner_sk=i.c_bpartner_sk
+LEFT JOIN xmcp_dw.dim_c_bp_group pg on pg.c_bp_group_sk = p.c_bp_group_sk
+LEFT JOIN xmcp_dw.dim_c_doctype dt on dt.c_doctype_sk = i.c_doctype_sk
+LEFT JOIN xmcp_dw.dim_c_currency c on c.c_currency_sk=i.c_currency_sk;
 
 
 -- VW: vw_c_submarket_full
-CREATE OR REPLACE VIEW kd_dw.vw_c_submarket_full as
+CREATE OR REPLACE VIEW xmcp_dw.vw_c_submarket_full as
 select 
     sm.c_submarket_sk as c_submarket_sk,
     sm.name as submarket_name,
@@ -40,12 +40,12 @@ select
     m.lat as vi_do,
     m.long as kinh_do
     
-from kd_dw.dim_c_submarket sm   
-LEFT JOIN kd_dw.dim_c_market m on sm.c_market_sk = m.c_market_sk;
+from xmcp_dw.dim_c_submarket sm   
+LEFT JOIN xmcp_dw.dim_c_market m on sm.c_market_sk = m.c_market_sk;
 
 
 -- VW: vw_m_product_full
-CREATE OR REPLACE VIEW kd_dw.vw_m_product_full as
+CREATE OR REPLACE VIEW xmcp_dw.vw_m_product_full as
 select 
     p.m_product_sk,
     p.name as product_name,
@@ -54,13 +54,13 @@ select
     pt.name as producttype_name,
     pt.value as producttype_value
     
-from kd_dw.dim_m_product p
-LEFT JOIN kd_dw.dim_c_producttype pt on p.c_producttype_sk = pt.c_producttype_sk
+from xmcp_dw.dim_m_product p
+LEFT JOIN xmcp_dw.dim_c_producttype pt on p.c_producttype_sk = pt.c_producttype_sk
 where p.is_current=1;
 
 
 -- VW: vw_sale_summary
-CREATE OR REPLACE VIEW kd_dw.vw_sales_summary AS
+CREATE OR REPLACE VIEW xmcp_dw.vw_sales_summary AS
 SELECT
 --fact
     f.c_invoiceline_sk,
@@ -116,12 +116,12 @@ SELECT
     u.name as uom_don_vi
     
 
-FROM kd_dw.fact_c_invoiceline f
-LEFT JOIN kd_dw.vw_c_invoice_full inv ON f.c_invoice_sk = inv.c_invoice_sk
-LEFT JOIN kd_dw.vw_c_submarket_full sm ON f.c_submarket_sk = sm.c_submarket_sk
-LEFT JOIN kd_dw.vw_m_product_full p ON f.m_product_sk = p.m_product_sk
-LEFT JOIN kd_dw.dim_date d ON f.date_sk = d.date_sk
-LEFT JOIN kd_dw.dim_ad_org org ON f.ad_org_sk = org.ad_org_sk
-LEFT JOIN kd_dw.dim_c_tax t on t.c_tax_sk=f.c_tax_sk
-LEFT JOIN kd_dw.dim_c_uom u on u.c_uom_sk=f.c_uom_sk;
+FROM xmcp_dw.fact_c_invoiceline f
+LEFT JOIN xmcp_dw.vw_c_invoice_full inv ON f.c_invoice_sk = inv.c_invoice_sk
+LEFT JOIN xmcp_dw.vw_c_submarket_full sm ON f.c_submarket_sk = sm.c_submarket_sk
+LEFT JOIN xmcp_dw.vw_m_product_full p ON f.m_product_sk = p.m_product_sk
+LEFT JOIN xmcp_dw.dim_date d ON f.date_sk = d.date_sk
+LEFT JOIN xmcp_dw.dim_ad_org org ON f.ad_org_sk = org.ad_org_sk
+LEFT JOIN xmcp_dw.dim_c_tax t on t.c_tax_sk=f.c_tax_sk
+LEFT JOIN xmcp_dw.dim_c_uom u on u.c_uom_sk=f.c_uom_sk;
 

@@ -23,8 +23,8 @@ def load_hr_employee_full():
             hr.isactive as isactive,
             hr.created as created,
             hr.updated as updated
-        FROM kd_stag.hr_employee hr
-        LEFT JOIN kd_dw.dim_c_department d
+        FROM xmcp_staging.hr_employee hr
+        LEFT JOIN xmcp_dw.dim_c_department d
             ON hr.c_department_id = d.c_department_id;
     """
 
@@ -50,7 +50,7 @@ def load_hr_employee_full():
     dw_operator.save_data_to_postgres(
         df,
         table_name="dim_hr_employee",
-        schema="kd_dw",
+        schema="xmcp_dw",
         if_exists="append"
     
     )
@@ -60,10 +60,10 @@ def load_ad_org_incremental():
     dw_operator = PostgresOperators(conn_id="DW_POSTGRES")
 
     sql="""
-        UPDATE kd_dw.dim_ad_org dw
+        UPDATE xmcp_dw.dim_ad_org dw
         SET valid_to=NOW(),
             is_current=0
-        FROM kd_stag.ad_org stg
+        FROM xmcp_staging.ad_org stg
         WHERE stg.ad_org_id = dw.ad_org_id
             AND dw.is_current = 1
             AND (dw.name        IS DISTINCT FROM stg.name
@@ -71,7 +71,7 @@ def load_ad_org_incremental():
                 OR dw.isactive IS DISTINCT FROM (CASE stg.isactive WHEN 'Y' THEN 1 ELSE 0 END));
 
         
-        INSERT INTO kd_dw.dim_ad_org (
+        INSERT INTO xmcp_dw.dim_ad_org (
             ad_org_id,
             name,
             value,
@@ -92,8 +92,8 @@ def load_ad_org_incremental():
                 NOW(),
                 '9999-12-31 23:59:59',
                 1
-        FROM kd_stag.ad_org stg
-        LEFT JOIN kd_dw.dim_ad_org dw
+        FROM xmcp_staging.ad_org stg
+        LEFT JOIN xmcp_dw.dim_ad_org dw
             ON stg.ad_org_id = dw.ad_org_id
             AND dw.is_current = 1
         WHERE dw.ad_org_id IS NULL
@@ -107,7 +107,7 @@ def load_ad_org_incremental():
     # staging_operator.save_data_to_postgres(
     #     df,
     #     table_name="c_tax",
-    #     schema="kd_dw",
+    #     schema="xmcp_dw",
     #     if_exists="append"
     # )
     dw_operator.run_sql(sql)
