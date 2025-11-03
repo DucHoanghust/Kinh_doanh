@@ -22,86 +22,124 @@ def load_m_inoutline_full():
     sql="""
         INSERT INTO xmcp_dw.fact_m_inoutline (
             m_inoutline_id,
-            c_invoice_sk,
-            c_submarket_sk,
+
+            m_inout_sk,
+            m_step_sk,
+            m_warehouse_sk,
             m_product_sk,
             ad_org_sk,
+            m_locator_sk,
             c_uom_sk,
-            c_tax_sk,
             date_sk,
-            c_bpartner_sk,
 
-            movementtype,
             
-            qtyinvoiced,
-            priceactual,
+            movementtype, 
+            ---- PHIẾU NHẬP KHO
+            -- SL yêu cầu/ SL yêu cầu quy đổi
+            qtyrequiered,
+            qty,
+
+            -- Số lượng 
+            qtyentered,
+
+            -- Số lượng quy đổi
+            movementqty,
+            -- HS quy đổi
+            rateconverted,
             
-            linenetamt,
-            linenetamtconvert,
-
-            discount,
-            discountamt,
-            discountamtconvert,
-
-            discount2amt,
-            discountamt2convert,
-
-            percenttax,
-            taxamount,
+            -- giá gốc / giá quy đổi
+            priceentered,
+            pricecost,
+            
+            -- Thành tiền / thành tiền quy đổi
+            amountconvert,
+            linenetamount,
+            
+            -- Tổng thuế/ tổng thuế quy đổi
+            totaltaxamount,
             taxamountconvert,
             
-            grandtotal,
-            grandtotalconvert
+            -- Tổng tiền/ tổng tiền quy đổi
+            totallines,
+            totallinesconvert,
+            
+            -- Tiền phân bổ đích danh/ số tiền phân bổ
+            amountallocation,
+            distributionamount,
+            
+            -- Ngày nhập 
+            receiptdate,
+
+            -- Thời gian đưa vào sử dụng (Tháng)
+            lifetime,
+
+            -- Kế hoạch sử dụng
+            dateexpiration,
+
+            -- Loại hàng hóa
+            classification,
+
+            -- Thời gian bảo hành đưa vào sử dụng/ Thời gian bảo hành lưu kho
+            timeused,
+            timestock,
+            
+            -- PHIẾU XUẤT KHO
+            -- Số lượng tồn kho
+            Qtyonhand,
+            
+            updated
 
         )
         SELECT 
-            ci.m_inoutline_id,
+            mi.m_inoutline_id,
 
-            COALESCE(inv.c_invoice_sk, -1),
-            COALESCE(m.c_submarket_sk, -1),
-            COALESCE(p.m_product_sk, -1),
-            COALESCE(org.ad_org_sk, -1),
-            COALESCE(u.c_uom_sk, -1),
-            COALESCE(t.c_tax_sk, -1),
+            COALESCE(m.m_inout_sk, -1) as m_inout_sk,
+            COALESCE(s.m_step_sk,-1) as m_step_sk,
+            COALESCE(w.m_warehouse_sk,-1) as m_warehouse_sk,
+            COALESCE(p.m_product_sk, -1) as m_product_sk,
+            COALESCE(a.ad_org_sk, -1) as ad_org_sk,
+            COALESCE(l.m_locator_sk,-1) as m_locator_sk,
+            COALESCE(c.c_uom_sk, -1) c_uom_sk,
+            COALESCE(d.date_sk, -1) date_sk,
 
-            COALESCE(d.date_sk, -1),
-
-            COALESCE(bg.c_bpartner_sk, -1),
-
-            ci.qtyinvoiced,
-            ci.priceactual,
-
-            ci.linenetamt,
-            ci.linenetamtconvert,
-
-           
-            COALESCE(ci.discount, 0),
-            COALESCE(ci.discountamt, 0),
-            COALESCE(ci.discountamtconvert, 0),
-
-            COALESCE(ci.discount2amt, 0),
-            COALESCE(ci.discountamt2convert, 0),
 
             
-            COALESCE(ci.percenttax, 0),
-            COALESCE(ci.taxamount, 0),
-            COALESCE(ci.taxamountconvert, 0),
+            COALESCE(m.movementtype, 'n/a') AS movementtype,
+            COALESCE(mi.qtyrequiered, 0) AS qtyrequiered,
+            COALESCE(mi.qty, 0) AS qty,
+            COALESCE(mi.qtyentered, 0) AS qtyentered,
+            COALESCE(mi.movementqty, 0) AS movementqty,
+            COALESCE(mi.rateconverted, 0) AS rateconverted,
+            COALESCE(mi.priceentered, 0) AS priceentered,
+            COALESCE(mi.pricecost, 0) AS pricecost,
+            COALESCE(mi.amountconvert, 0) AS amountconvert,
+            COALESCE(mi.linenetamount, 0) AS linenetamount,
+            COALESCE(mi.totaltaxamount, 0) AS totaltaxamount,
+            COALESCE(mi.taxamountconvert, 0) AS taxamountconvert,
+            COALESCE(mi.totallines, 0) AS totallines,
+            COALESCE(mi.totallinesconvert, 0) AS totallinesconvert,
+            COALESCE(mi.amountallocation, 0) AS amountallocation,
+            COALESCE(mi.distributionamount, 0) AS distributionamount,
 
-            ci.grandtotal,
-            ci.grandtotalconvert
+            mi.receiptdate AS receiptdate,
+            COALESCE(mi.lifetime, 0) AS lifetime,
+            
+            mi.dateexpiration AS dateexpiration,
+            COALESCE(mi.classification, 'n/a') AS classification,
+            COALESCE(mi.timeused, 0) AS timeused,
+            COALESCE(mi.timestock, 0) AS timestock,
+            COALESCE(mi.qtyonhand, 0) AS qtyonhand,
+            mi.updated
 
-        FROM xmcp_staging.m_inoutline ci
-        LEFT JOIN xmcp_dw.dim_c_invoice inv ON ci.c_invoice_id = inv.c_invoice_id
-
-        LEFT JOIN xmcp_dw.dim_c_submarket m ON ci.c_submarket_id = m.c_submarket_id
-        LEFT JOIN xmcp_dw.dim_m_product p ON ci.m_product_id = p.m_product_id
-        LEFT JOIN xmcp_dw.dim_ad_org org ON ci.ad_org_id = org.ad_org_id
-        LEFT JOIN xmcp_dw.dim_c_uom u ON ci.c_uom_id = u.c_uom_id
-        LEFT JOIN xmcp_dw.dim_c_tax t ON ci.c_tax_id = t.c_tax_id
-
-        LEFT JOIN xmcp_dw.dim_date d ON inv.dateinvoice::DATE = d.full_date
-
-        LEFT JOIN xmcp_dw.dim_c_bpartner bg ON ci.c_bpartner_id = bg.c_bpartner_id;
+        FROM xmcp_staging.m_inoutline mi
+        LEFT JOIN xmcp_dw.dim_m_inout m ON m.m_inout_id = mi.m_inout_id
+        LEFT JOIN xmcp_dw.dim_c_uom c on c.c_uom_id=mi.c_uom_id
+        LEFT JOIN xmcp_dw.dim_ad_org a on a.ad_org_id=mi.ad_org_id
+        LEFT JOIN xmcp_dw.dim_m_product p on p.m_product_id=mi.m_product_id
+        LEFT JOIN xmcp_dw.dim_m_warehouse w on w.m_warehouse_id=mi.m_warehouse_id
+        LEFT JOIN xmcp_dw.dim_m_step s on s.m_step_id=mi.m_step_id
+        LEFT JOIN xmcp_dw.dim_m_locator l on l.m_locator_id=mi.m_locator_id
+        LEFT JOIN xmcp_dw.dim_date d ON receiptdate::DATE = d.full_date
     """
 
     dw_operator.run_sql(sql)

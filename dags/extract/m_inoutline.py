@@ -14,10 +14,13 @@ def extract_m_inoutline():
     select
         m_inoutline_id,
         
+        m_inout_id,
         m_locator_id,
         m_product_id,
+        ad_org_id,
         c_uom_id,
         m_step_id,
+        m_warehouse_id,
 
         movementtype, 
 
@@ -53,7 +56,7 @@ def extract_m_inoutline():
         timestock,
         
         
-        
+        qtyonhand,
         updated
     from m_inoutline 
 

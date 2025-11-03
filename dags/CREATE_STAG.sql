@@ -208,7 +208,7 @@ CREATE TABLE IF NOT EXISTS xmcp_staging.m_warehouse (
     m_warehouse_id INT,
     name VARCHAR(255),
     value VARCHAR(255),
-    isstocked VARCHAR(2), --Không tính tồn kho hàng hỏng 
+    isstocked VARCHAR(10), --Không tính tồn kho hàng hỏng 
     isactive VARCHAR(2),
     created TIMESTAMP,
     updated TIMESTAMP
@@ -226,17 +226,20 @@ CREATE TABLE IF NOT EXISTS xmcp_staging.m_product_category (
 CREATE TABLE IF NOT EXISTS xmcp_staging.m_inout (
     m_inout_id INT,
     c_department_create_id INT, -- Phòng ban YC
-    m_warehouse_id INT, -- Kho
-    c_submarket_id INT,
+    m_warehouse_id INT, 
+    c_department_id INT,
+    c_doctype_id INT,
+    c_bpartner_id INT,
+
     
     documentno VARCHAR(255),
     currencyrate NUMERIC(20,10), -- tỷ giá
+    movementtype VARCHAR(10),
     
-    
-        
     docstatus VARCHAR(10), -- Trạng thái CO: Hoàn thành, DR: Đang nháp
     register_status VARCHAR(10), -- Trạng thái ký: K: Đã ký, N: Chưa trình ký, H: Hủy, TK: Đang trình kí
-    isprinted VARCHAR(2),
+    isinvoiced INT,
+    isprinted INT,
     isactive VARCHAR(2),  
     created TIMESTAMP,
     updated TIMESTAMP
@@ -244,12 +247,16 @@ CREATE TABLE IF NOT EXISTS xmcp_staging.m_inout (
 
 CREATE TABLE IF NOT EXISTS xmcp_staging.m_inoutline (
     m_inoutline_id INT,
+
     m_inout_id INT,
-    
     m_locator_id INT,
     m_product_id INT,
+    ad_org_id INT,
     c_uom_id INT,
     m_step_id INT,
+    m_warehouse_id INT,
+
+    movementtype VARCHAR(10),
     
     qtyrequiered NUMERIC(10,2),  
     qty NUMERIC(10,2),  
@@ -257,22 +264,23 @@ CREATE TABLE IF NOT EXISTS xmcp_staging.m_inoutline (
     qtyentered NUMERIC(10,2), 
     movementqty NUMERIC(10,2), 
     
-    rateconverted NUMERIC(20,10), 
     
-    priceentered NUMERIC(20,10), 
-    pricecost NUMERIC(20,10), 
+    rateconverted NUMERIC(10,2), 
     
-    amountconvert NUMERIC(20,10), 
-    linenetamount NUMERIC(20,10), 
+    priceentered NUMERIC(30,10), 
+    pricecost NUMERIC(30,10), 
     
-    totaltaxamount NUMERIC(20,10), 
-    taxamountconvert NUMERIC(20,10), 
+    amountconvert NUMERIC(30,10), 
+    linenetamount NUMERIC(30,10), 
     
-    totallines NUMERIC(20,10), 
-    totallinesconvert NUMERIC(20,10), 
+    totaltaxamount NUMERIC(30,10), 
+    taxamountconvert NUMERIC(30,10), 
     
-    amountallocation NUMERIC(20,10), 
-    distributionamount NUMERIC(20,10), 
+    totallines NUMERIC(30,10), 
+    totallinesconvert NUMERIC(30,10), 
+    
+    amountallocation NUMERIC(30,10), 
+    distributionamount NUMERIC(30,10), 
     
     
     receiptdate TIMESTAMP,
@@ -283,7 +291,7 @@ CREATE TABLE IF NOT EXISTS xmcp_staging.m_inoutline (
     timestock INT,
     
     
-    
+    qtyonhand NUMERIC(10,2),
     updated TIMESTAMP
 );
 

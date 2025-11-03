@@ -37,7 +37,7 @@ def load_c_invoice_full():
     df['isactive'] = df['isactive'].map({'Y': 1, 'N': 0})
     # Thêm Surrogate Key  -- Bước này sẽ tự thêm trong Serial trong sql
     # df['c_tax_sk'] = df.index + 1
-
+ 
     # Xử lí SCD Type 2
     df['valid_from'] = pd.Timestamp.now()
     df['valid_to'] = pd.Timestamp("9999-12-31 23:59:59")

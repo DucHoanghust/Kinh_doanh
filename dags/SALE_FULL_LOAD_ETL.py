@@ -30,7 +30,7 @@ from transform.dim_c_market import load_c_market_full
 from transform.dim_c_submarket import load_c_submarket_full
 from transform.dim_c_uom import load_c_uom_full
 from transform.dim_m_product import load_m_product_full
-from transform.dim_cbpartner import load_c_bpartner_full
+from transform.dim_c_bpartner import load_c_bpartner_full
 from transform.dim_c_producttype import load_c_producttype_full
 from transform.dim_c_invoice import load_c_invoice_full
 from transform.dim_date import load_dim_date

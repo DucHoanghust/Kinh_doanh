@@ -352,8 +352,14 @@ CREATE TABLE IF NOT EXISTS xmcp_dw.dim_m_locator(
     value VARCHAR(255),
     isactive VARCHAR(2) NOT NULL,
     created TIMESTAMP,
-    updated TIMESTAMP
+    updated TIMESTAMP,
+    valid_from TIMESTAMP,
+    valid_to TIMESTAMP,
+    is_current INT
 );
+INSERT INTO xmcp_dw.dim_m_locator (m_locator_sk, m_locator_id, name, value, isactive, created, updated, valid_from, valid_to, is_current)
+VALUES (-1, NULL, 'n/a', 'n/a', 1, '2025-01-01 00:00:00', '2025-01-01 00:00:00','1900-01-01 00:00:00','9999-12-31 23:59:59',1)
+ON CONFLICT DO NOTHING;
 
 
 
@@ -365,8 +371,16 @@ CREATE TABLE IF NOT EXISTS xmcp_dw.dim_m_step(
     value VARCHAR(255),
     isactive VARCHAR(2) NOT NULL,
     created TIMESTAMP,
-    updated TIMESTAMP
+    updated TIMESTAMP,
+    valid_from TIMESTAMP,
+    valid_to TIMESTAMP,
+    is_current INT
 );
+INSERT INTO xmcp_dw.dim_m_step (m_step_sk, m_step_id, name, value, isactive, created, updated, valid_from, valid_to, is_current)
+VALUES (-1, NULL, 'n/a', 'n/a', 1, '2025-01-01 00:00:00', '2025-01-01 00:00:00','1900-01-01 00:00:00','9999-12-31 23:59:59',1)
+ON CONFLICT DO NOTHING;
+
+
 
 -- Dim m_warehouse
 CREATE TABLE IF NOT EXISTS xmcp_dw.dim_m_warehouse(
@@ -374,11 +388,18 @@ CREATE TABLE IF NOT EXISTS xmcp_dw.dim_m_warehouse(
     m_warehouse_id INT,
     name VARCHAR(255),
     value VARCHAR(255),
-    isstocked VARCHAR(2), --Không tính tồn kho hàng hỏng 
+    isstocked VARCHAR(10), --Không tính tồn kho hàng hỏng 
     isactive VARCHAR(2),
     created TIMESTAMP,
-    updated TIMESTAMP
+    updated TIMESTAMP,
+    valid_from TIMESTAMP,
+    valid_to TIMESTAMP,
+    is_current INT
 );
+INSERT INTO xmcp_dw.dim_m_warehouse (m_warehouse_sk, m_warehouse_id, name, value, isstocked, isactive, created, updated, valid_from, valid_to, is_current)
+VALUES (-1, NULL, 'n/a', 'n/a', -1, 1, '2025-01-01 00:00:00', '2025-01-01 00:00:00','1900-01-01 00:00:00','9999-12-31 23:59:59',1)
+ON CONFLICT DO NOTHING;
+
 
 
 -- Dim m_product_category
@@ -389,133 +410,46 @@ CREATE TABLE IF NOT EXISTS xmcp_dw.dim_m_product_category(
     value VARCHAR(255),
     isactive VARCHAR(2),
     created TIMESTAMP,
-    updated TIMESTAMP
+    updated TIMESTAMP,
+    valid_from TIMESTAMP,
+    valid_to TIMESTAMP,
+    is_current INT
 );
+INSERT INTO xmcp_dw.dim_m_product_category (m_product_category_sk, m_product_category_id, name, value, isactive, created, updated, valid_from, valid_to, is_current)
+VALUES (-1, NULL, 'n/a', 'n/a', 1, '2025-01-01 00:00:00', '2025-01-01 00:00:00','1900-01-01 00:00:00','9999-12-31 23:59:59',1)
+ON CONFLICT DO NOTHING;
 
 -- Dim m_inout
 CREATE TABLE IF NOT EXISTS xmcp_dw.dim_m_inout(
     m_inout_sk SERIAL PRIMARY KEY,
     m_inout_id INT,
-    c_department_create_id INT, -- Phòng ban YC
     -- dimension surrougate key
     c_department_sk INT,
+    c_doctype_sk INT,
+    c_department_create_sk INT, 
+    c_bpartner_sk INT,
 
     --     
+    inout_type VARCHAR(10),
     documentno VARCHAR(255),
     currencyrate NUMERIC(20,10), -- tỷ giá
+    movementtype VARCHAR(10),
     docstatus VARCHAR(10), -- Trạng thái CO: Hoàn thành, DR: Đang nháp
     register_status VARCHAR(10), -- Trạng thái ký: K: Đã ký, N: Chưa trình ký, H: Hủy, TK: Đang trình kí
-    isprinted VARCHAR(2),
+    isinvoiced INT,
+    isprinted INT,
     isactive VARCHAR(2),  
     created TIMESTAMP,
-    updated TIMESTAMP
+    updated TIMESTAMP,
+    valid_from TIMESTAMP,
+    valid_to TIMESTAMP,
+    is_current INT
 );
+INSERT INTO xmcp_dw.dim_m_inout (m_inout_sk, m_inout_id, c_department_sk, c_doctype_sk, c_department_create_sk,c_bpartner_sk, inout_type,documentno,currencyrate,movementtype,docstatus,register_status,isinvoiced,isprinted, isactive, created, updated,valid_from,valid_to,is_current)
+VALUES (-1, NULL, -1, -1, -1, -1, 'n/a','n/a', -1,'n/a','n/a', 'n/a', -1,-1,1, '2025-01-01 00:00:00', '2025-01-01 00:00:00','1900-01-01 00:00:00','9999-12-31 23:59:59',1)
+ON CONFLICT DO NOTHING;
 
 
--- FACT INOUTLINE
-CREATE TABLE IF NOT EXISTS xmcp_dw.fact_m_inoutline (
-    m_inoutline_sk SERIAL PRIMARY KEY,
-    m_inoutline_id INT,
-        
-    -- dimesion surrougate key
-    m_inout_sk INT NOT NULL,
-    c_submarket_sk INT NOT NULL,
-    c_uom_sk INT NOT NULL,
-    m_locator_sk INT NOT NULL,
-    m_step_sk INT NOT NULL,
-    m_warehouse_sk INT NOT NULL,
-    m_product_sk INT NOT NULL,
-    ad_org_sk INT NOT NULL,
-    date_sk INT NOT NULL,
-    c_doctype_sk INT NOT NULL,
-
-    -- measures
-    m_locator_id INT,
-    m_product_id INT,
-    c_uom_id INT,
-    m_step_id INT,
-
-    movementtype VARCHAR(255), 
-
-    qtyrequiered NUMERIC(20,10),
-    qty NUMERIC(20,10),
-    
-    qtyentered NUMERIC(20,10),
-    movementqty NUMERIC(20,10),
-    
-    rateconverted NUMERIC(20,10),
-    
-    priceentered NUMERIC(20,10),
-    pricecost NUMERIC(20,10),
-    
-    amountconvert NUMERIC(20,10),
-    linenetamount NUMERIC(20,10),
-    
-    totaltaxamount NUMERIC(20,10),
-    taxamountconvert NUMERIC(20,10),
-    
-    totallines NUMERIC(20,10),
-    totallinesconvert NUMERIC(20,10),
-    
-    amountallocation NUMERIC(20,10),
-    distributionamount NUMERIC(20,10),
-    
-    
-    receiptdate TIMESTAMP,
-    lifetime TIMESTAMP,
-    dateexpiration TIMESTAMP,
-    classification VARCHAR(255),
-    timeused TIMESTAMP,
-    timestock TIMESTAMP,
-    
-    
-    
-    updated TIMESTAMP
-);
-
--- FACT INVOICELINE
-
-CREATE TABLE IF NOT EXISTS xmcp_dw.fact_c_invoiceline (
-    c_invoiceline_sk SERIAL PRIMARY KEY,
-    c_invoiceline_id INT NOT NULL,
-
-    -- dimesion surrougate key
-    c_invoice_sk INT NOT NULL,
-    c_submarket_sk INT NOT NULL,
-    m_product_sk INT NOT NULL,
-    ad_org_sk INT NOT NULL,
-    c_uom_sk INT NOT NULL,
-    c_tax_sk INT NOT NULL,
-    date_sk INT NOT NULL,
-    c_bpartner_sk INT,
-    -- c_bp_group_sk INT NOT NULL,
-    
-
-    -- measures
-    qtyinvoiced NUMERIC(30,2),  
-    priceactual NUMERIC(30,10), 
-    linenetamt NUMERIC(30,10), 
-    linetotalamt NUMERIC(30,10), 
-    linenetamtconvert NUMERIC(30,10), 
-
-
-    discount NUMERIC(30,2), 
-    discountamt NUMERIC(30,2), 
-    discountamtconvert NUMERIC(30,2), 
-    discount2amt NUMERIC(30,2), 
-    discountamt2convert NUMERIC(30,2), 
-    percenttax NUMERIC(30,2), 
-    taxamount NUMERIC(30,10), 
-    taxamountconvert NUMERIC(30,10), 
-    grandtotal NUMERIC(30,10), 
-    grandtotalconvert NUMERIC(30,10),
-
-
-    qtyentered NUMERIC(30,2), 
-    movementqty NUMERIC(30,2)
-
-
-);
 
     -- foreign key
     -- CONSTRAINT fk_fact_invoice   FOREIGN KEY (c_invoice_sk)   REFERENCES xmcp_dw.dim_c_invoice (c_invoice_sk),
@@ -559,45 +493,6 @@ FOREIGN KEY (c_bp_group_sk) REFERENCES xmcp_dw.dim_c_bp_group(c_bp_group_sk) NOT
 
 
 
--- fact_c_invoiceline → dim_c_invoice
-ALTER TABLE xmcp_dw.fact_c_invoiceline
-ADD CONSTRAINT fk_fact_invoice
-FOREIGN KEY (c_invoice_sk) REFERENCES xmcp_dw.dim_c_invoice(c_invoice_sk) NOT VALID;
-
--- fact_c_invoiceline → dim_c_submarket
-ALTER TABLE xmcp_dw.fact_c_invoiceline
-ADD CONSTRAINT fk_fact_submarket
-FOREIGN KEY (c_submarket_sk) REFERENCES xmcp_dw.dim_c_submarket(c_submarket_sk) NOT VALID;
-
--- fact_c_invoiceline → dim_m_product
-ALTER TABLE xmcp_dw.fact_c_invoiceline
-ADD CONSTRAINT fk_fact_product
-FOREIGN KEY (m_product_sk) REFERENCES xmcp_dw.dim_m_product(m_product_sk) NOT VALID;
-
--- fact_c_invoiceline → dim_ad_org
-ALTER TABLE xmcp_dw.fact_c_invoiceline
-ADD CONSTRAINT fk_fact_org
-FOREIGN KEY (ad_org_sk) REFERENCES xmcp_dw.dim_ad_org(ad_org_sk) NOT VALID;
-
--- fact_c_invoiceline → dim_c_uom
-ALTER TABLE xmcp_dw.fact_c_invoiceline
-ADD CONSTRAINT fk_fact_uom
-FOREIGN KEY (c_uom_sk) REFERENCES xmcp_dw.dim_c_uom(c_uom_sk) NOT VALID;
-
--- fact_c_invoiceline → dim_c_tax
-ALTER TABLE xmcp_dw.fact_c_invoiceline
-ADD CONSTRAINT fk_fact_tax
-FOREIGN KEY (c_tax_sk) REFERENCES xmcp_dw.dim_c_tax(c_tax_sk) NOT VALID;
-
--- fact_c_invoiceline → dim_date
-ALTER TABLE xmcp_dw.fact_c_invoiceline
-ADD CONSTRAINT fk_fact_date
-FOREIGN KEY (date_sk) REFERENCES xmcp_dw.dim_date(date_sk) NOT VALID;
-
--- fact_c_invoiceline → dim_c_bpartner (bạn có sử dụng c_bpartner_sk)
--- ALTER TABLE xmcp_dw.fact_c_invoiceline
--- ADD CONSTRAINT fk_fact_bpartner
--- FOREIGN KEY (c_bpartner_sk) REFERENCES xmcp_dw.dim_c_bpartner(c_bpartner_sk) NOT VALID;
 
 
 -- KHO
@@ -607,50 +502,7 @@ ALTER TABLE xmcp_dw.dim_m_product
 ADD CONSTRAINT fk_product_category
 FOREIGN KEY (m_product_category_sk) REFERENCES xmcp_dw.dim_m_product_category(m_product_category_sk) NOT VALID;
 
--- fact_m_inoutline → dim_m_warehouse
-ALTER TABLE xmcp_dw.fact_m_inoutline
-ADD CONSTRAINT fk_fact_inoutline_warehouse
-FOREIGN KEY (m_warehouse_sk) REFERENCES xmcp_dw.dim_m_warehouse(m_warehouse_sk) NOT VALID;
 
--- fact_m_inoutline → dim_m_inout
-ALTER TABLE xmcp_dw.fact_m_inoutline
-ADD CONSTRAINT fk_fact_inoutline_inout
-FOREIGN KEY (m_inout_sk) REFERENCES xmcp_dw.dim_m_inout(m_inout_sk) NOT VALID;
-
--- fact_m_inoutline → dim_c_submarket
-ALTER TABLE xmcp_dw.fact_m_inoutline
-ADD CONSTRAINT fk_fact_inoutline_submarket
-FOREIGN KEY (c_submarket_sk) REFERENCES xmcp_dw.dim_c_submarket(c_submarket_sk) NOT VALID;
-
--- fact_m_inoutline → dim_c_uom
-ALTER TABLE xmcp_dw.fact_m_inoutline
-ADD CONSTRAINT fk_fact_inoutline_uom
-FOREIGN KEY (c_uom_sk) REFERENCES xmcp_dw.dim_c_uom(c_uom_sk) NOT VALID;
-
--- fact_m_inoutline → dim_m_locator
-ALTER TABLE xmcp_dw.fact_m_inoutline
-ADD CONSTRAINT fk_fact_inoutline_locator
-FOREIGN KEY (m_locator_sk) REFERENCES xmcp_dw.dim_m_locator(m_locator_sk) NOT VALID;
-
--- fact_m_inoutline → dim_ad_org
-ALTER TABLE xmcp_dw.fact_m_inoutline
-ADD CONSTRAINT fk_fact_inoutline_org
-FOREIGN KEY (ad_org_sk) REFERENCES xmcp_dw.dim_ad_org(ad_org_sk) NOT VALID;
-
--- fact_m_inoutline → dim_m_product
-ALTER TABLE xmcp_dw.fact_m_inoutline
-ADD CONSTRAINT fk_fact_inoutline_product
-FOREIGN KEY (m_product_sk) REFERENCES xmcp_dw.dim_m_product(m_product_sk) NOT VALID;
-
--- fact_m_inoutline → dim_c_doctype
-ALTER TABLE xmcp_dw.fact_m_inoutline
-ADD CONSTRAINT fk_fact_inoutline_doctype
-FOREIGN KEY (c_doctype_sk) REFERENCES xmcp_dw.dim_c_doctype(c_doctype_sk) NOT VALID;
-
--- fact_m_inoutline → dim_m_step
-ALTER TABLE xmcp_dw.fact_m_inoutline
-ADD CONSTRAINT fk_fact_inoutline_step
-FOREIGN KEY (m_step_sk) REFERENCES xmcp_dw.dim_m_step(m_step_sk) NOT VALID;
 
 -- dim_inout → dim_c_department (c_department_create)
 ALTER TABLE xmcp_dw.dim_m_inout

@@ -60,6 +60,7 @@ with DAG("STAGING",
         default_args=default_args,
         schedule="0 6 * * *",
         catchup=False,
+        tags=["ETL", "STAGING"]
          ) as dag:
     
     extract_tasks = {
@@ -68,7 +69,7 @@ with DAG("STAGING",
     "E_c_market": extract_c_market,
     "E_m_product": extract_m_product,
     "E_c_invoice": extract_c_invoice,
-    "E_bpartner": extract_c_bpartner,
+    "E_c_bpartner": extract_c_bpartner,
     "E_c_bp_group": extract_c_bp_group,
     "E_ad_group": extract_ad_org,
     "E_c_uom": extract_c_uom,

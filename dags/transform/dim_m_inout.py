@@ -9,32 +9,48 @@ def load_m_inout_full():
     staging_operator = PostgresOperators(conn_id="STAGING_POSTGRES")
     dw_operator = PostgresOperators(conn_id="DW_POSTGRES")
 
-    
 
     df = staging_operator.get_data_to_pd("""
-                                        SELECT
-                                            m_inout_id,
-                                            c_department_create_id,
-                                            documentno,
-                                            currencyrate,
-                                            docstatus,
-                                            register_status,
-                                            isinvoiced,
-                                            isprinted,
-                                            isactive,
-                                            created,
-                                            updated
+    SELECT
+        m.m_inout_id as m_inout_id,
+        COALESCE(c.c_department_sk,-1) as c_department_sk,
+        COALESCE(d.c_doctype_sk,-1) as c_doctype_sk,
+        COALESCE(ct.c_department_sk,-1) as c_department_create_sk,
+        COALESCE(p.c_bpartner_sk,-1) as c_bpartner_sk,
+        
+                                        
+        CASE
+            WHEN position('+' in m.movementtype) > 0 THEN 'Import'
+            WHEN position('-' in m.movementtype) > 0 THEN 'Export'
+            ELSE 'n/a'
+        END AS inout_type,
 
-                                        from xmcp_staging.m_inout
-                                         """)
+        m.documentno,
+        m.currencyrate,
+        m.movementtype,
+        m.docstatus,
+        
+        m.register_status,
+        m.isinvoiced,
+        m.isprinted,
+        m.isactive,
+        m.created,
+        m.updated
+    from xmcp_staging.m_inout m
+    left join xmcp_dw.dim_c_department c on c.c_department_id=m.c_department_id 
+    left join xmcp_dw.dim_c_department ct on ct.c_department_id = m.c_department_create_id
+    left join xmcp_dw.dim_c_doctype d on d.c_doctype_id=m.c_doctype_id
+    left join xmcp_dw.dim_c_bpartner p on p.c_bpartner_id = m.c_bpartner_id 
+  
+""")
     
 
     logging.info(df.columns)
     # Chuẩn hóa lại is active sang boolean từ Y/N sang 1/0
     df['isactive'] = df['isactive'].map({'Y': 1, 'N': 0})
-    
-    # Thêm Surrogate Key  -- Bước này sẽ tự thêm trong Serial trong sql
-    # df['c_tax_sk'] = df.index + 1
+       
+    df['isinvoiced'] = df['isinvoiced'].map({'Y': 1, 'N': 0})
+    df['isprinted'] = df['isprinted'].map({'Y': 1, 'N': 0})
 
     # Xử lí SCD Type 2
     df['valid_from'] = pd.Timestamp.now()

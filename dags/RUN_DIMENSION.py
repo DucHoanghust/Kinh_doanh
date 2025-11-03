@@ -16,7 +16,7 @@ from transform.dim_c_market import load_c_market_full
 from transform.dim_c_submarket import load_c_submarket_full
 from transform.dim_c_uom import load_c_uom_full
 from transform.dim_m_product import load_m_product_full
-from transform.dim_cbpartner import load_c_bpartner_full
+from transform.dim_c_bpartner import load_c_bpartner_full
 from transform.dim_c_producttype import load_c_producttype_full
 from transform.dim_c_invoice import load_c_invoice_full
 from transform.dim_date import load_dim_date
@@ -31,6 +31,9 @@ from transform.dim_m_inout import load_m_inout_full
 from transform.dim_c_department import load_c_department_full
 ## Invoiceline
 from transform.fact_c_invoiceline import load_c_invoiceline_full
+
+## Inoutline
+from transform.fact_m_inoutline import load_m_inoutline_full
 
 ####
 
@@ -62,49 +65,48 @@ default_args = {
 
 with DAG("DIMESION",
         default_args=default_args,
-        schedule="0 6 * * *",
+        schedule="15 6 * * *",
         catchup=False,
-         ) as dag:
+        tags=["ETL", "DIMENSION"]
+        ) as dag:
     
     transform_dim_task = {
-    # "TF_dim_c_tax": load_c_tax_full,
-    # "TF_dim_ad_org": load_ad_org_full,
-    # "TF_dim_c_bp_group": load_c_bp_group_full,
-    # "TF_dim_c_doctype": load_c_doctype_full,
-    # "TF_dim_c_market": load_c_market_full,
-    # "TF_dim_c_submarket": load_c_submarket_full,
-    # "TF_dim_c_uom": load_c_uom_full,
-    # "TF_dim_m_product": load_m_product_full,
-    # "TF_dim_c_bpartner": load_c_bpartner_full,
-    # "TF_dim_c_producttype": load_c_producttype_full,
-    # "TF_dim_c_invoice": load_c_invoice_full,
-    # "TF_dim_date": load_dim_date,
-    # "TF_dim_c_currency": load_c_currency_full,
+    "TF_dim_c_tax": load_c_tax_full,
+    "TF_dim_ad_org": load_ad_org_full,
+    "TF_dim_c_bp_group": load_c_bp_group_full,
+    "TF_dim_c_doctype": load_c_doctype_full,
+    "TF_dim_c_market": load_c_market_full,
+    "TF_dim_c_submarket": load_c_submarket_full,
+    "TF_dim_c_uom": load_c_uom_full,
+    "TF_dim_m_product": load_m_product_full,
+    "TF_dim_c_bpartner": load_c_bpartner_full,
+    "TF_dim_c_producttype": load_c_producttype_full,
+    "TF_dim_c_invoice": load_c_invoice_full,
+    "TF_dim_date": load_dim_date,
+    "TF_dim_c_currency": load_c_currency_full,
 
     ## dim Kho_test
     "TF_dim_m_locator": load_m_locator_full,
     "TF_dim_m_step": load_m_step_full,
     "TF_dim_product_category": load_m_product_category_full,
     "TF_dim_m_warehouse": load_m_warehouse_full,
-    "TF_dim_m_inout": load_m_inout_full,
-    "TF_dim_c_department":load_c_department_full
+    "TF_dim_c_department":load_c_department_full,
+    "TF_dim_m_inout": load_m_inout_full
+    
     }   
     
-    transform_fact_task={
-    "L_fact_c_invoiceline": load_c_invoiceline_full
-    }
 
 
-    with TaskGroup("TRANSFORM") as transform_group:
+    with TaskGroup("TRANSFORM_DIMESION") as transform_dim_group:
         create_table_dimesion = SQLExecuteQueryOperator(
             task_id="create_dim_tables",
             conn_id="STAGING_POSTGRES",
             sql="./CREATE_DIM_XMCP.sql"
         )
 
-        transform_task_list = []
+        transform_dim_task_list = []
         for task_id, fn in transform_dim_task.items():
-            transform_task_list.append(
+            transform_dim_task_list.append(
                 PythonOperator(
                     task_id=task_id,
                     python_callable=fn,
@@ -112,4 +114,4 @@ with DAG("DIMESION",
                 )
             )  
 
-        create_table_dimesion >> transform_task_list
+        create_table_dimesion >> transform_dim_task_list 

@@ -18,11 +18,13 @@ def extract_m_inout():
         m_inout_id,
         c_department_create_id, -- Phòng ban YC
         m_warehouse_id, -- Kho
-        c_submarket_id,
-        
+        c_doctype_id,
+        c_department_id,
+        c_bpartner_id,
 
         documentno,
         currencyrate, -- tỷ giá
+        movementtype,
         
         
         
