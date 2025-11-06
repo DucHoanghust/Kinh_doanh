@@ -4,7 +4,7 @@ from airflow.providers.standard.operators.python import PythonOperator
 from datetime import datetime
 from airflow.utils.task_group import TaskGroup
 from airflow.utils.email import send_email
-from airflow.sensors.external_task import ExternalTaskSensor
+# from airflow.sensors.external_task import ExternalTaskSensor
 ####
 ## Invoiceline
 from transform.fact_c_invoiceline import load_c_invoiceline_full

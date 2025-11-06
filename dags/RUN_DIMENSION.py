@@ -70,29 +70,40 @@ with DAG("DIMESION",
         tags=["ETL", "DIMENSION"]
         ) as dag:
     
+    ###############################################
+    ## Cần chia lại dim cha và dim con, dim con sẽ load trước
+    ## 3 Level Dim, 1 là dim to nhất, 2, 3 bé dần
+    ###############################################
     transform_dim_task = {
+
+    # Dim level 3
+    "TF_dim_m_step": load_m_step_full,
     "TF_dim_c_tax": load_c_tax_full,
     "TF_dim_ad_org": load_ad_org_full,
-    "TF_dim_c_bp_group": load_c_bp_group_full,
-    "TF_dim_c_doctype": load_c_doctype_full,
-    "TF_dim_c_market": load_c_market_full,
-    "TF_dim_c_submarket": load_c_submarket_full,
     "TF_dim_c_uom": load_c_uom_full,
-    "TF_dim_m_product": load_m_product_full,
-    "TF_dim_c_bpartner": load_c_bpartner_full,
-    "TF_dim_c_producttype": load_c_producttype_full,
-    "TF_dim_c_invoice": load_c_invoice_full,
     "TF_dim_date": load_dim_date,
+    "TF_dim_c_doctype": load_c_doctype_full,
+
+
+    "TF_dim_m_warehouse": load_m_warehouse_full,
+    "TF_dim_m_locator": load_m_locator_full,
+    "TF_dim_c_producttype": load_c_producttype_full,
+    "TF_dim_product_category": load_m_product_category_full,
+    "TF_dim_c_department":load_c_department_full,
+    "TF_dim_c_bp_group": load_c_bp_group_full,
+    "TF_dim_c_submarket": load_c_submarket_full,
     "TF_dim_c_currency": load_c_currency_full,
 
-    ## dim Kho_test
-    "TF_dim_m_locator": load_m_locator_full,
-    "TF_dim_m_step": load_m_step_full,
-    "TF_dim_product_category": load_m_product_category_full,
-    "TF_dim_m_warehouse": load_m_warehouse_full,
-    "TF_dim_c_department":load_c_department_full,
+
+
+    # Dim level 2
+    "TF_dim_c_market": load_c_market_full,
+    "TF_dim_m_product": load_m_product_full,
+    "TF_dim_c_bpartner": load_c_bpartner_full,
+
+    ## dim level 1
+    "TF_dim_c_invoice": load_c_invoice_full,
     "TF_dim_m_inout": load_m_inout_full
-    
     }   
     
 

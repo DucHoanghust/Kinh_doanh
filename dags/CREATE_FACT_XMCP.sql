@@ -17,13 +17,13 @@ CREATE TABLE IF NOT EXISTS xmcp_dw.fact_m_inoutline (
     -- c_doctype_sk INT NOT NULL,
 
     -- measures
-    m_inout_id INT,
-    m_locator_id INT,
-    m_product_id INT,
-    c_uom_id INT,
-    m_step_id INT,
-    ad_org_id INT,
-    m_warehousehouse_id INT,
+    -- m_inout_id INT,
+    -- m_locator_id INT,
+    -- m_product_id INT,
+    -- c_uom_id INT,
+    -- m_step_id INT,
+    -- ad_org_id INT,
+    -- m_warehousehouse_id INT,
 
     movementtype VARCHAR(10), 
     ---- PHIẾU NHẬP KHO

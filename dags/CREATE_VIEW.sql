@@ -238,6 +238,21 @@ SELECT
     d.day_of_week,
     d.week_of_year,
     
+-- dim m_inout
+    m.inout_type as inout_type,
+    m.docstatus as docstatus,
+    m.register_status as register_status,
+    m.isinvoiced as isinvoiced,
+    m.isprinted as isprinted,
+
+    m.partner_name as parner_name,
+    m.group_name as group_name,
+    m.doctype_name as doctype_name,
+    m.department_name as department_name,
+
+-- dim product
+    pc.product_name as product_name,
+    pc.product_category_name as product_category_name,
 
 -- dim khác
     org.name as ad_org_name,
