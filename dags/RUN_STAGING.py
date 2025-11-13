@@ -31,14 +31,46 @@ from extract.m_product_category import extract_m_product_category
 ###
 from extract.c_department import extract_c_department
 
+
+####################
+## EMAIL CALLBACK
+####################
 def safe_email_alert(context):
     ti = context.get("ti")
-    # Bỏ qua mark_success_url nếu không có
-    if not hasattr(ti, "mark_success_url"):
-        ti.mark_success_url = ""  # patch tạm thời
-    send_email(to="you@domain.com",
-               subject=f"Task Failed: {ti.task_id}",
-               html_content="Task failed, check Airflow UI.")
+    dag_id = ti.dag_id
+    task_id = ti.task_id
+    run_id = ti.run_id
+    log_url = ti.log_url
+
+    html_content = f"""
+    <h3>⚠️ Task Failed in Airflow</h3>
+    <p><b>DAG:</b> {dag_id}</p>
+    <p><b>Task:</b> {task_id}</p>
+    <p><b>Run ID:</b> {run_id}</p>
+    <p><a href="{log_url}">🔗 Xem log trong Airflow</a></p>
+    """
+
+    send_email(
+        to=["hoangbd1@viettel.com.vn"],
+        subject=f"[Airflow Alert] Task Failed: {task_id}",
+        html_content=html_content,
+        conn_id="smtp_default"  # ✅ dùng connection SMTP_CONN thay vì mặc định
+    )
+
+def success_email_alert(context):
+    dag_id = context.get("dag").dag_id
+    run_id = context.get("run_id")
+    send_email(
+        to=["hoangbd1@viettel.com.vn"],
+        subject=f"[Airflow Success] DAG {dag_id} completed successfully",
+        html_content=f"<p>DAG <b>{dag_id}</b> đã hoàn thành thành công.</p><p>Run ID: {run_id}</p>",
+        conn_id="smtp_default"
+    )
+
+
+####################
+## DEFAULT ARGS
+####################
 
 
 default_args = {
@@ -48,19 +80,28 @@ default_args = {
     "tags": ["full_load", "ETL"],
 
     ## email
-    "email": ["buihoang123zz@gmail.com"],
+    "email": ["hoangbd1@viettel.com.vn"],
     "email_on_failure": True,
     "on_failure_callback": safe_email_alert,
     "email_on_retry": False,
 
+    ## Timezone
     "timezone": "Asia/Ho_Chi_Minh",   
     }
+
+
+
+####################
+## DAG DEFINITION
+####################
 
 with DAG("STAGING",
         default_args=default_args,
         schedule="0 6 * * *",
         catchup=False,
-        tags=["ETL", "STAGING"]
+        tags=["ETL", "STAGING"],
+        on_success_callback= success_email_alert,
+
          ) as dag:
     
     extract_tasks = {

@@ -1,6 +1,3 @@
-from airflow import DAG
-from airflow.providers.oracle.hooks.oracle import OracleHook
-from airflow.providers.standard.operators.python import PythonOperator
 from datetime import datetime
 from plugins.oracle_operators import OracleHookThick
 from plugins.postgres_operators import PostgresOperators

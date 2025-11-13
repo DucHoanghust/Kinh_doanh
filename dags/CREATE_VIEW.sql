@@ -147,13 +147,19 @@ SELECT
     dt.docbasetype as doctype_base_type,
 
     dp.name as department_name,
-    dp.value as department_value
+    dp.value as department_value,
+
+    dpc.name as department_create_name,
+    dpc.value as department_create_value
+
     
 from xmcp_dw.dim_m_inout i
 LEFT JOIN xmcp_dw.dim_c_department dp on dp.c_department_sk=i.c_department_sk
+LEFT JOIN xmcp_dw.dim_c_department dpc on dpc.c_department_sk=i.c_department_create_sk
 LEFT JOIN xmcp_dw.dim_c_doctype dt on dt.c_doctype_sk=i.c_doctype_sk
 LEFT JOIN xmcp_dw.dim_c_bpartner p on p.c_bpartner_sk=i.c_bpartner_sk
 LEFT JOIN xmcp_dw.dim_c_bp_group pg on pg.c_bp_group_sk = p.c_bp_group_sk;
+
 
 
 
@@ -229,12 +235,12 @@ SELECT
     w.value as warehouse_value,
 
 -- dim date
-    d.full_date as sales_date,
-    d.day as sales_day,
-    d.month AS sales_month,
-    d.month_name AS sales_month_name,
-    d.quarter AS sales_quarter,
-    d.year AS sales_year,
+    d.full_date as date,
+    d.day as day,
+    d.month AS month,
+    d.month_name AS month_name,
+    d.quarter AS quarter,
+    d.year AS year,
     d.day_of_week,
     d.week_of_year,
     
@@ -245,10 +251,11 @@ SELECT
     m.isinvoiced as isinvoiced,
     m.isprinted as isprinted,
 
-    m.partner_name as parner_name,
+    m.partner_name as partner_name,
     m.group_name as group_name,
     m.doctype_name as doctype_name,
     m.department_name as department_name,
+    m.department_create_name as department_create_name,
 
 -- dim product
     pc.product_name as product_name,

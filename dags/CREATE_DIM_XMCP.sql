@@ -463,6 +463,9 @@ ON CONFLICT DO NOTHING;
 
     -- CONSTRAINT fk_fact_bp_group  FOREIGN KEY (c_bp_group_sk)  REFERENCES xmcp_dw.dim_c_bp_group (c_bp_group_sk)
 
+
+
+
 -- dim c_invoice
 ALTER TABLE xmcp_dw.dim_c_invoice
 ADD CONSTRAINT fk_invoice_doctype
@@ -506,5 +509,15 @@ FOREIGN KEY (m_product_category_sk) REFERENCES xmcp_dw.dim_m_product_category(m_
 
 -- dim_inout → dim_c_department (c_department_create)
 ALTER TABLE xmcp_dw.dim_m_inout
-ADD CONSTRAINT fk_fact_inout_department
+ADD CONSTRAINT fk_dim_inout_department
 FOREIGN KEY (c_department_sk) REFERENCES xmcp_dw.dim_c_department(c_department_sk) NOT VALID;
+
+-- dim_inout → dim_c_doctype 
+ALTER TABLE xmcp_dw.dim_m_inout
+ADD CONSTRAINT fk_dim_inout_doctype
+FOREIGN KEY (c_doctype_sk) REFERENCES xmcp_dw.dim_c_doctype(c_doctype_sk) NOT VALID;
+
+-- dim_inout → dim_c_bpartner
+ALTER TABLE xmcp_dw.dim_m_inout
+ADD CONSTRAINT fk_dim_inout_partner
+FOREIGN KEY (c_bpartner_sk) REFERENCES xmcp_dw.dim_c_bpartner(c_bpartner_sk) NOT VALID;
